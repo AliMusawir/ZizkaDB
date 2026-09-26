@@ -2,9 +2,9 @@
 
 # ZizkaDB
 
-**When your agent misbehaves, see why.**
+Operational database for AI agents, Auditing agent behavior, Causal Lineage, Session replay and Time - Debugging
 
-Self-hosted audit trail for AI agents — one command or one dashboard click from any step back to root cause.
+Self-hosted audit trail for AI agents, one command, one API key and one dashboard 
 
 **This repository is the open-source self-host stack** (API, tenant dashboard, SDKs, MCP). Operator admin console and VPC deploy live in private [zizkadb-cloud](https://github.com/Zizka-ai/zizkadb-cloud) — see [docs/REPO_SPLIT.md](docs/REPO_SPLIT.md).
 
