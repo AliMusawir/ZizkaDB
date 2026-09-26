@@ -1,6 +1,7 @@
 <div align="center">
 
 # ZizkaDB
+Primarily built to make agents trustable, AUditable and EU AI ACT COMPLIANT
 
 Operational database for AI agents, Auditing agent behavior, Causal Lineage, Session replay and Time - Debugging
 
@@ -29,7 +30,7 @@ Self-hosted audit trail for AI agents, one command, one API key and one dashboar
 
 ## Try it (60 seconds)
 
-Requires [Docker](https://docs.docker.com/get-docker/). First image pull may take 5–10 minutes.
+Requires [Docker](https://docs.docker.com/get-docker/). Just gets started in 60 seconds
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Zizka-ai/ZizkaDB/main/scripts/quickstart-remote.sh | bash
