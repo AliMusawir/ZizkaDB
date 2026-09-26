@@ -1,7 +1,7 @@
 <div align="center">
 
 # ZizkaDB
-Built to make agents trustable, AUditable and EU AI ACT COMPLIANT
+Built to make agents trustable, AUditable and EU AI ACT Compliant
 
 Operational database for AI agents, Auditing agent behavior, Causal Lineage, Session replay and Time - Debugging
 
