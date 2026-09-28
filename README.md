@@ -1,44 +1,66 @@
 <div align="center">
 
+<a href="https://db.zizka.ai"><img src="docs/assets/zizkadb-logo.png" alt="ZizkaDB — visit db.zizka.ai" width="160"/></a>
+
 # ZizkaDB
-Built to make agents trustable, AUditable and EU AI ACT Compliant
 
-Operational database for AI agents, Auditing agent behavior, Causal Lineage, Session replay and Time - Debugging
+**Built to make AI agents trustworthy, auditable and EU AI Act compliant.**
 
-Self-hosted audit trail for AI agents, one command, one API key and one dashboard 
+The operational database for AI agents: audit agent behavior, trace causal lineage, replay sessions and time-travel debug.
+Self-hosted — one command, one API key, one dashboard.
 
-**This repository is the open-source self-host stack** (API, tenant dashboard, SDKs, MCP). Operator admin console and VPC deploy live in private [zizkadb-cloud](https://github.com/Zizka-ai/zizkadb-cloud) — see [docs/REPO_SPLIT.md](docs/REPO_SPLIT.md).
-
-
+**[Quickstart](#quickstart-60-seconds)** · **[Docs](DEVELOPMENT.md)** · **[Integrations](#integrations)** · **[Connect](CONNECT.md)** · **[Cloud](https://db.zizka.ai)** · **[Discussions](https://github.com/Zizka-ai/ZizkaDB/discussions)** · **[Contributing](CONTRIBUTING.md)**
 
 [![CI](https://github.com/Zizka-ai/ZizkaDB/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Zizka-ai/ZizkaDB/actions/workflows/ci.yml)
 [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-blue.svg)](LICENSE)
 [![Release](https://img.shields.io/badge/release-v0.2.8-f97316)](https://github.com/Zizka-ai/ZizkaDB/releases)
 [![Python SDK](https://img.shields.io/pypi/v/zizkadb-sdk?label=Python%20SDK)](https://pypi.org/project/zizkadb-sdk/)
-[![LangChain](https://img.shields.io/pypi/v/zizkadb-langchain?label=LangChain)](https://pypi.org/project/zizkadb-langchain/)
-[![CrewAI](https://img.shields.io/pypi/v/zizkadb-crewai?label=CrewAI)](https://pypi.org/project/zizkadb-crewai/)
-[![LiveKit](https://img.shields.io/pypi/v/zizkadb-livekit?label=LiveKit)](https://pypi.org/project/zizkadb-livekit/)
-[![MCP](https://img.shields.io/pypi/v/zizkadb-mcp?label=MCP)](https://pypi.org/project/zizkadb-mcp/)
-
-**[Try it ↓](#try-it-60-seconds)** · **[DEVELOPMENT.md](DEVELOPMENT.md)** · **[CONNECT.md](CONNECT.md)** · **[Contributing](CONTRIBUTING.md)**
+[![TypeScript SDK](https://img.shields.io/npm/v/zizkadb-sdk?label=TypeScript%20SDK)](https://www.npmjs.com/package/zizkadb-sdk)
+[![GitHub stars](https://img.shields.io/github/stars/Zizka-ai/ZizkaDB?style=flat)](https://github.com/Zizka-ai/ZizkaDB/stargazers)
 
 </div>
 
+Every agent team eventually asks: *Why did it say that? Why did it call that tool?* ZizkaDB links every agent step to the step that caused it, so you get the answer in one call instead of scrolling through traces.
+
+- **Causal, not just traces.** Each event carries a `parent_id`. `db.why(event_id)` walks back to the user message, wrong tool, or bad context that started it.
+- **Time-travel.** `db.at(agent, timestamp)` rebuilds exactly what the agent knew at any past moment.
+- **Self-hosted on your Postgres.** One Docker command, AGPL-3.0, no per-trace billing. Your data stays on your infrastructure.
+
 <p align="center">
-  <img src="docs/assets/readme-hero-causal-graph.png" alt="Why feature — pick any agent step and walk back to root cause with db.why()" width="100%"/>
+  <a href="#quickstart-60-seconds"><img src="docs/assets/why-chain.svg" alt="Animated: db.why() walks from a tool_call back through llm_response to the root-cause user_message" width="900"/></a>
 </p>
 
-<a id="try-it-60-seconds"></a>
+## Contents
 
-## Try it (60 seconds)
+- [Quickstart (60 seconds)](#quickstart-60-seconds)
+- [Integrations](#integrations)
+- [Connect your agent](#connect-your-agent)
+- [What it does](#what-it-does)
+- [How it works](#how-it-works)
+- [Use with your AI assistant (MCP)](#use-with-your-ai-assistant-mcp)
+- [ZizkaDB vs. tracing tools](#zizkadb-vs-tracing-tools)
+- [Cloud, FAQ and docs](#more)
+- [Contributors](#contributors)
 
-Requires [Docker](https://docs.docker.com/get-docker/). Just gets started in 60 seconds
+---
+
+## Quickstart (60 seconds)
+
+From zero to your first causal chain with one command. No repo clone needed.
+
+<p align="center">
+  <a href="scripts/quickstart-remote.sh"><img src="docs/assets/quickstart-terminal.svg" alt="Terminal animation: one curl command downloads config, pulls images, starts the stack, installs the SDK and prints a causal chain" width="900"/></a>
+</p>
+
+**1. Start Docker.** [Docker](https://docs.docker.com/get-docker/) must be running. The first image pull can take 5–10 minutes; later starts take seconds.
+
+**2. Install and run.** This downloads config and pre-built images, starts Postgres, Qdrant, Redis, the API and the dashboard, then runs a demo agent:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Zizka-ai/ZizkaDB/main/scripts/quickstart-remote.sh | bash
 ```
 
-You should see:
+**3. See why.** The demo prints the causal chain behind the agent's tool call:
 
 ```text
 tool_call · lookup_order · ORD-8842
@@ -46,7 +68,9 @@ tool_call · lookup_order · ORD-8842
         └── user_message · Why was my order delayed?
 ```
 
-Run again anytime: `pip install zizkadb-sdk && zizkadb demo`
+**4. Open the dashboard.** [localhost:3001/login](http://localhost:3001/login) → **Open my dashboard** → Activity → click any event → **Why? (causal)** tab.
+
+Run the demo again anytime: `pip install zizkadb-sdk && zizkadb demo`
 
 ### Self-host from a clone
 
@@ -65,23 +89,58 @@ Full guide: **[DEVELOPMENT.md](DEVELOPMENT.md)** · Troubleshooting: [wiki/Troub
 
 ---
 
-## Why?
+## Integrations
 
-Every agent team asks: *Why did it say that? Why did it call that tool?*
-
-1. **Log** agent steps with `parent_id` (each step links to the one that caused it).
-2. **Ask why** — terminal: `zizkadb why <event_id>` or Python: `(await db.why(event_id)).print()`
-3. **See the chain** — walk back to the user message, wrong tool, or bad context.
-
-**Dashboard (same chain):** [Activity → support-bot](http://localhost:3001/dashboard/activity?agent=support-bot) → click an event → **Why? (causal)** tab.
+Works with the stack you already use — add one package and every step is logged with its cause.
 
 <p align="center">
-  <img src="docs/assets/gallery-why.png" alt="db.why() output — tool_call to llm_response to user_message" width="640"/>
+  <a href="CONNECT.md"><img src="https://cdn.simpleicons.org/python/3776AB" alt="Python" height="40"/></a> &nbsp;&nbsp; <a href="CONNECT.md"><img src="https://cdn.simpleicons.org/typescript/3178C6" alt="TypeScript" height="40"/></a> &nbsp;&nbsp; <a href="CONNECT.md#langchain"><img src="https://cdn.simpleicons.org/langchain/1C9C8C" alt="LangChain" height="40"/></a> &nbsp;&nbsp; <a href="CONNECT.md#crewai"><img src="https://cdn.simpleicons.org/crewai/FF5A50" alt="CrewAI" height="40"/></a> &nbsp;&nbsp; <a href="CONNECT.md#livekit-agents-voice"><img src="https://cdn.simpleicons.org/livekit/A970FF" alt="LiveKit" height="40"/></a> &nbsp;&nbsp; <a href="mcp/README.md"><img src="https://cdn.simpleicons.org/modelcontextprotocol/8B949E" alt="MCP" height="40"/></a> &nbsp;&nbsp; <a href="https://db.zizka.ai/swagger"><img src="https://cdn.simpleicons.org/swagger/85EA2D" alt="REST API" height="40"/></a>
 </p>
+
+<table>
+  <tr><th>Integration</th><th>Install</th><th>What you get</th></tr>
+  <tr>
+    <td nowrap><img src="https://cdn.simpleicons.org/python/3776AB" alt="" height="20" align="center"/>&nbsp;<a href="CONNECT.md"><strong>Python</strong></a></td>
+    <td><code>pip install zizkadb-sdk</code></td>
+    <td>Any Python agent</td>
+  </tr>
+  <tr>
+    <td nowrap><img src="https://cdn.simpleicons.org/typescript/3178C6" alt="" height="20" align="center"/>&nbsp;<a href="CONNECT.md"><strong>TypeScript</strong></a></td>
+    <td><code>npm install zizkadb-sdk</code></td>
+    <td>Any JavaScript / TypeScript agent</td>
+  </tr>
+  <tr>
+    <td nowrap><img src="https://cdn.simpleicons.org/langchain/1C9C8C" alt="" height="20" align="center"/>&nbsp;<a href="CONNECT.md#langchain"><strong>LangChain</strong></a></td>
+    <td><code>pip install zizkadb-langchain</code></td>
+    <td>Drop-in callback handler</td>
+  </tr>
+  <tr>
+    <td nowrap><img src="https://cdn.simpleicons.org/crewai/FF5A50" alt="" height="20" align="center"/>&nbsp;<a href="CONNECT.md#crewai"><strong>CrewAI</strong></a></td>
+    <td><code>pip install zizkadb-crewai</code></td>
+    <td>Crew logger for your agents</td>
+  </tr>
+  <tr>
+    <td nowrap><img src="https://cdn.simpleicons.org/livekit/A970FF" alt="" height="20" align="center"/>&nbsp;<a href="CONNECT.md#livekit-agents-voice"><strong>LiveKit</strong></a></td>
+    <td><code>pip install zizkadb-livekit</code></td>
+    <td>Voice agents — one call, one session</td>
+  </tr>
+  <tr>
+    <td nowrap><img src="https://cdn.simpleicons.org/modelcontextprotocol/8B949E" alt="" height="20" align="center"/>&nbsp;<a href="mcp/README.md"><strong>MCP</strong></a></td>
+    <td><code>uvx zizkadb-mcp</code></td>
+    <td>Ask Cursor or Claude why</td>
+  </tr>
+  <tr>
+    <td nowrap><img src="https://cdn.simpleicons.org/swagger/85EA2D" alt="" height="20" align="center"/>&nbsp;<a href="https://db.zizka.ai/swagger"><strong>REST API</strong></a></td>
+    <td><a href="https://db.zizka.ai/swagger">Swagger docs</a></td>
+    <td>Any language</td>
+  </tr>
+</table>
+
+Click a name for its setup guide. New project? Scaffold one with `zizkadb init my-agent --template basic`.
 
 ---
 
-## Connect (3 lines)
+## Connect your agent
 
 ```python
 import asyncio
@@ -96,34 +155,99 @@ async def main():
 asyncio.run(main())
 ```
 
-Full guides: **[CONNECT.md](CONNECT.md)** · [LangChain](CONNECT.md#langchain) · [CrewAI](CONNECT.md#crewai) · [LiveKit (voice)](CONNECT.md#livekit-agents-voice) · [MCP / Cursor](mcp/README.md)
+<details>
+<summary><strong>TypeScript</strong></summary>
 
----
+```ts
+import { ZizkaDB } from 'zizkadb-sdk'
 
-## Integrations
+const db = new ZizkaDB({ host: 'http://localhost:8000' })
 
-| Python | TypeScript | LangChain | CrewAI | LiveKit | MCP | REST |
-| :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| [`zizkadb-sdk`](https://pypi.org/project/zizkadb-sdk/) | [`zizkadb-sdk`](https://www.npmjs.com/package/zizkadb-sdk) | [`zizkadb-langchain`](https://pypi.org/project/zizkadb-langchain/) | [`zizkadb-crewai`](https://pypi.org/project/zizkadb-crewai/) | [`zizkadb-livekit`](https://pypi.org/project/zizkadb-livekit/) | `uvx zizkadb-mcp` | [Swagger](https://db.zizka.ai/swagger) |
-
-Scaffold a project: `zizkadb init my-agent --template basic`
-
-### Voice agents (LiveKit)
-
-```bash
-pip install zizkadb-livekit
+const user = await db.log({ agent: 'my-bot', event: 'user_message', data: { text: 'Why is my order late?' } })
+const tool = await db.log({ agent: 'my-bot', event: 'tool_call', data: { tool: 'lookup_order' }, parentId: user.eventId })
+;(await db.why(tool.eventId)).print()
 ```
 
-One LiveKit call → one **Session** in Activity (transcript only, no audio in ZizkaDB). Full guide: [CONNECT.md → LiveKit](CONNECT.md#livekit-agents-voice) · [docs/integrations/livekit.md](docs/integrations/livekit.md) · [example](examples/livekit-agent/).
+</details>
+
+From the terminal: `zizkadb why <event_id>`. Full guide: **[CONNECT.md](CONNECT.md)**
 
 ---
 
+## What it does
+
+| Function | What you get |
+| --- | --- |
+| `db.why(event_id)` | The causal chain behind any event |
+| `db.at(agent, timestamp)` | What the agent knew at a past moment |
+| `db.search(query)` | Semantic search over the agent's history |
+| `db.context_for(agent, task)` | Relevant past events, ready to inject into the next prompt |
+| `db.baseline(agent)` | Alerts when agent behavior drifts from past sessions |
+| `db.forget(key, value)` | GDPR erasure by metadata filter, including the search index |
+
+<p align="center">
+  <a href="https://db.zizka.ai"><img src="docs/assets/readme-hero-dashboard.png" alt="ZizkaDB dashboard showing agent activity" width="900"/></a>
+</p>
+
+---
+
+## How it works
+
+```mermaid
+flowchart LR
+    A[Your agent<br/>SDK · LangChain · CrewAI · LiveKit] -->|events + parent_id| B[ZizkaDB API]
+    D[Dashboard] --> B
+    M[MCP server<br/>Cursor · Claude] --> B
+    B --> P[(PostgreSQL<br/>source of truth)]
+    B --> Q[(Qdrant<br/>semantic search)]
+    B --> R[(Redis<br/>cache)]
+```
+
+- **Causal lineage** lives in Postgres: every event stores its parent, and `why()` walks the chain with a recursive query. No separate graph store.
+- **Every event is written twice**: to Postgres for structured queries and to Qdrant for semantic search. Design decisions: [docs/adr/](docs/adr/).
+
+---
+
+## Use with your AI assistant (MCP)
+
+Ask Cursor or Claude *"why did support-bot call lookup_order?"* and get the chain back. Add this to your MCP config:
+
+```json
+{
+  "mcpServers": {
+    "zizkadb": {
+      "command": "uvx",
+      "args": ["zizkadb-mcp"],
+      "env": { "ZIZKADB_HOST": "http://localhost:8000" }
+    }
+  }
+}
+```
+
+For ZizkaDB Cloud, use `ZIZKADB_API_KEY` instead. Setup for each client: [mcp/README.md](mcp/README.md). The MCP server is MIT-licensed.
+
+---
+
+## ZizkaDB vs. tracing tools
+
+Tools like Langfuse and LangSmith **observe** span trees. ZizkaDB **audits** decisions.
+
+| | ZizkaDB | Typical LLM tracing tools |
+| --- | :---: | :---: |
+| Explicit cause → effect links | ✅ | Span nesting |
+| One-call root cause (`db.why()`) | ✅ | Manual trace reading |
+| Time-travel to past agent state | ✅ | — |
+| Memory for future runs (`db.context_for()`) | ✅ | — |
+| Pricing | Free self-host (AGPL) | Often per-trace |
+
+---
+
+<a id="more"></a>
+
 <details>
-<summary><strong>Managed cloud (Pro / Team) — optional</strong></summary>
+<summary><strong>Managed cloud (Pro / Team)</strong></summary>
 
-Same **Why?** feature — hosted at [db.zizka.ai](https://db.zizka.ai). No Docker to maintain.
-
-The operator admin console, VPC deploy, and cloud-only marketing routes live in the private **[zizkadb-cloud](https://github.com/Zizka-ai/zizkadb-cloud)** repo — see [docs/REPO_SPLIT.md](docs/REPO_SPLIT.md).
+The same features, hosted at [db.zizka.ai](https://db.zizka.ai). No Docker to maintain.
 
 | | **Pro** | **Team** |
 | --- | --- | --- |
@@ -137,36 +261,17 @@ The operator admin console, VPC deploy, and cloud-only marketing routes live in 
 
 </details>
 
-<details>
-<summary><strong>More features — drift, time-travel, search, GDPR</strong></summary>
-
-| Function | What it does |
-| --- | --- |
-| `db.baseline()` | Detect when agent behavior drifts vs past sessions |
-| `db.at()` | Reconstruct what the agent knew at a timestamp |
-| `db.search()` | Semantic search over agent history |
-| `db.context_for()` | Inject relevant past events into prompts |
-| `db.forget()` | GDPR erasure by metadata filter |
-
-</details>
-
-<details>
+<details open>
 <summary><strong>FAQ</strong></summary>
 
 **Do I need to clone this repo?**  
-No — the curl quickstart downloads config + Docker images only.
+No. The curl quickstart downloads config and Docker images only.
 
 **Do I need an API key locally?**  
-No — `http://localhost:8000` uses a built-in dev key. Dashboard: [localhost:3001/login](http://localhost:3001/login).
+No. `http://localhost:8000` uses a built-in dev key.
 
-**How is this different from Langfuse / LangSmith?**  
-They **observe** span trees. ZizkaDB **audits** with explicit `parent_id` chains and `db.why()` on your Postgres — self-host under AGPL, no trace billing.
-
-**Voice agents with LiveKit?**  
-Install **`zizkadb-livekit`** — one pip command, connect to Docker with `ZIZKADB_HOST=http://localhost:8000`. See [LiveKit guide](CONNECT.md#livekit-agents-voice).
-
-**`zizkadb demo` connection refused?**  
-Start the stack: `curl -fsSL …/quickstart-remote.sh | bash` or `bash scripts/setup-local.sh`.
+**`zizkadb demo` says connection refused?**  
+The stack isn't running. Start it with the curl command above or `bash scripts/setup-local.sh`.
 
 </details>
 
@@ -176,17 +281,28 @@ Start the stack: `curl -fsSL …/quickstart-remote.sh | bash` or `bash scripts/s
 | | |
 | --- | --- |
 | Worked example | [worked/01-support-order-delay](worked/01-support-order-delay/) |
-| Examples | [examples/](examples/) — includes [LiveKit voice agent](examples/livekit-agent/) |
-| LiveKit integration | [docs/integrations/livekit.md](docs/integrations/livekit.md) |
+| Examples | [examples/](examples/) |
 | Self-hosting | [DEVELOPMENT.md](DEVELOPMENT.md) · [wiki/Self-Hosting](https://github.com/Zizka-ai/ZizkaDB/wiki/Self-Hosting) |
-| Troubleshooting | [wiki/Troubleshooting.md](wiki/Troubleshooting.md) |
 | Integrate any agent | [docs/integrate/](docs/integrate/) |
 | Issues · Discussions | [Issues](https://github.com/Zizka-ai/ZizkaDB/issues) · [Discussions](https://github.com/Zizka-ai/ZizkaDB/discussions) |
-| Contributing · Security | [CONTRIBUTING.md](CONTRIBUTING.md) · [SECURITY.md](SECURITY.md) |
-| AI-assisted development | [AGENTS.md](AGENTS.md) · [docs/ai/CODING_STANDARDS.md](docs/ai/CODING_STANDARDS.md) |
+| Security | [SECURITY.md](SECURITY.md) |
+| AI-assisted development | [AGENTS.md](AGENTS.md) |
 
 </details>
 
+---
+
+## Contributors
+
+Thanks to everyone who has helped build ZizkaDB. Want to join? Read [CONTRIBUTING.md](CONTRIBUTING.md) or pick up an [open issue](https://github.com/Zizka-ai/ZizkaDB/issues).
+
+<a href="https://github.com/Zizka-ai/ZizkaDB/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=Zizka-ai/ZizkaDB" alt="ZizkaDB contributors"/>
+</a>
+
+---
+
 <p align="center">
-  <sub>AGPL-3.0 · MCP server MIT · Disable telemetry: <code>export ZIZKADB_TELEMETRY=false</code></sub>
+  <sub>AGPL-3.0 · MCP server MIT · Disable telemetry: <code>export ZIZKADB_TELEMETRY=false</code><br/>
+  This repo is the open-source self-host stack. The operator console and VPC deploy live in a private repo (<a href="docs/REPO_SPLIT.md">why</a>).</sub>
 </p>

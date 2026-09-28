@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 460" width="900" height="460" role="img" aria-label="Terminal animation: install ZizkaDB with one curl command, the stack starts, and the demo prints a causal chain in about 60 seconds">
+<style>
+text{font:13.5px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre}
+.cmd{fill:#e6edf3} .p{fill:#f97316;font-weight:700} .out{fill:#8b949e} .ok{fill:#3fb950} .acc{fill:#f97316;font-weight:600}
+.title{font:600 12px ui-sans-serif,-apple-system,Segoe UI,sans-serif;fill:#8b949e}
+@keyframes k0{0%,2.78%{clip-path:inset(0 100% 0 0)}13.89%,94.44%{clip-path:inset(0 0 0 0)}100%{clip-path:inset(0 100% 0 0)}}
+.l0{animation:k0 18.0s linear infinite;clip-path:inset(0 100% 0 0)}
+@keyframes k1{0%,14.44%{clip-path:inset(0 100% 0 0)}15.28%,94.44%{clip-path:inset(0 0 0 0)}100%{clip-path:inset(0 100% 0 0)}}
+.l1{animation:k1 18.0s linear infinite;clip-path:inset(0 100% 0 0)}
+@keyframes k2{0%,17.78%{clip-path:inset(0 100% 0 0)}18.61%,94.44%{clip-path:inset(0 0 0 0)}100%{clip-path:inset(0 100% 0 0)}}
+.l2{animation:k2 18.0s linear infinite;clip-path:inset(0 100% 0 0)}
+@keyframes k3{0%,21.67%{clip-path:inset(0 100% 0 0)}22.50%,94.44%{clip-path:inset(0 0 0 0)}100%{clip-path:inset(0 100% 0 0)}}
+.l3{animation:k3 18.0s linear infinite;clip-path:inset(0 100% 0 0)}
+@keyframes k4{0%,26.67%{clip-path:inset(0 100% 0 0)}27.50%,94.44%{clip-path:inset(0 0 0 0)}100%{clip-path:inset(0 100% 0 0)}}
+.l4{animation:k4 18.0s linear infinite;clip-path:inset(0 100% 0 0)}
+@keyframes k5{0%,32.22%{clip-path:inset(0 100% 0 0)}33.06%,94.44%{clip-path:inset(0 0 0 0)}100%{clip-path:inset(0 100% 0 0)}}
+.l5{animation:k5 18.0s linear infinite;clip-path:inset(0 100% 0 0)}
+@keyframes k6{0%,35.56%{clip-path:inset(0 100% 0 0)}36.39%,94.44%{clip-path:inset(0 0 0 0)}100%{clip-path:inset(0 100% 0 0)}}
+.l6{animation:k6 18.0s linear infinite;clip-path:inset(0 100% 0 0)}
+@keyframes k7{0%,38.89%{clip-path:inset(0 100% 0 0)}39.72%,94.44%{clip-path:inset(0 0 0 0)}100%{clip-path:inset(0 100% 0 0)}}
+.l7{animation:k7 18.0s linear infinite;clip-path:inset(0 100% 0 0)}
+@keyframes k9{0%,43.33%{clip-path:inset(0 100% 0 0)}44.17%,94.44%{clip-path:inset(0 0 0 0)}100%{clip-path:inset(0 100% 0 0)}}
+.l9{animation:k9 18.0s linear infinite;clip-path:inset(0 100% 0 0)}
+@keyframes k10{0%,46.11%{clip-path:inset(0 100% 0 0)}46.94%,94.44%{clip-path:inset(0 0 0 0)}100%{clip-path:inset(0 100% 0 0)}}
+.l10{animation:k10 18.0s linear infinite;clip-path:inset(0 100% 0 0)}
+@keyframes k11{0%,48.89%{clip-path:inset(0 100% 0 0)}49.72%,94.44%{clip-path:inset(0 0 0 0)}100%{clip-path:inset(0 100% 0 0)}}
+.l11{animation:k11 18.0s linear infinite;clip-path:inset(0 100% 0 0)}
+@keyframes k13{0%,53.33%{clip-path:inset(0 100% 0 0)}54.17%,94.44%{clip-path:inset(0 0 0 0)}100%{clip-path:inset(0 100% 0 0)}}
+.l13{animation:k13 18.0s linear infinite;clip-path:inset(0 100% 0 0)}
+@keyframes k14{0%,58.89%{clip-path:inset(0 100% 0 0)}67.44%,94.44%{clip-path:inset(0 0 0 0)}100%{clip-path:inset(0 100% 0 0)}}
+.l14{animation:k14 18.0s linear infinite;clip-path:inset(0 100% 0 0)}
+</style>
+<rect width="900" height="460" rx="12" fill="#0d1117"/>
+<rect width="900" height="38" rx="12" fill="#161b22"/><rect y="26" width="900" height="12" fill="#161b22"/>
+<circle cx="24" cy="19" r="6" fill="#ff5f57"/><circle cx="44" cy="19" r="6" fill="#febc2e"/><circle cx="64" cy="19" r="6" fill="#28c840"/>
+<text class="title" x="450.0" y="23" text-anchor="middle">ZizkaDB quickstart — ~60 seconds</text>
+<text class="l0 cmd" x="28" y="70"><tspan class="p">$ </tspan>curl -fsSL https://raw.githubusercontent.com/Zizka-ai/ZizkaDB/main/scripts/quickstart-remote.sh | bash</text>
+<text class="l1 acc" x="28" y="94">  ZizkaDB — remote quickstart (no repo clone)</text>
+<text class="l2 out" x="28" y="118">→ Downloading compose + schema (not the full repo)...</text>
+<text class="l3 out" x="28" y="142">→ Pulling pre-built images from ghcr.io/zizka-ai/ ...</text>
+<text class="l4 out" x="28" y="166">→ Starting stack (postgres, qdrant, redis, api, dashboard)...</text>
+<text class="l5 ok" x="28" y="190">✔ API healthy on http://localhost:8000</text>
+<text class="l6 out" x="28" y="214">→ Installing SDK from PyPI...</text>
+<text class="l7 out" x="28" y="238">→ Running causal lineage demo...</text>
+<text class="l9 acc" x="28" y="286">tool_call · lookup_order · ORD-8842</text>
+<text class="l10 out" x="28" y="310">  └── llm_response · gpt-4o</text>
+<text class="l11 out" x="28" y="334">        └── user_message · Why was my order delayed?</text>
+<text class="l13 ok" x="28" y="382">  Done — Dashboard: http://localhost:3001/login</text>
+<text class="l14 cmd" x="28" y="406"><tspan class="p">$ </tspan>zizkadb why &lt;event_id&gt;   # ask why, any time</text>
+</svg>
