@@ -4,10 +4,12 @@
 
 # ZizkaDB
 
-**Built to make AI agents trustworthy, auditable and EU AI Act compliant.**
+### The audit trail database for AI agents
 
-The operational database for AI agents: audit agent behavior, trace causal lineage, replay sessions and time-travel debug.
-Self-hosted — one command, one API key, one dashboard.
+**Tamper-evident, checksum-backed decision logs** with **session replay** and **time-travel debugging**,<br/>
+built to support **EU AI Act Article 12** record-keeping.
+
+Drift detection · MCP server · Python & TypeScript SDKs · Self-host or cloud
 
 **[Quickstart](#quickstart-60-seconds)** · **[Docs](DEVELOPMENT.md)** · **[Integrations](#integrations)** · **[Connect](CONNECT.md)** · **[Cloud](https://db.zizka.ai)** · **[Discussions](https://github.com/Zizka-ai/ZizkaDB/discussions)** · **[Contributing](CONTRIBUTING.md)**
 
@@ -24,7 +26,9 @@ Every agent team eventually asks: *Why did it say that? Why did it call that too
 
 - **Causal, not just traces.** Each event carries a `parent_id`. `db.why(event_id)` walks back to the user message, wrong tool, or bad context that started it.
 - **Time-travel.** `db.at(agent, timestamp)` rebuilds exactly what the agent knew at any past moment.
-- **Self-hosted on your Postgres.** One Docker command, AGPL-3.0, no per-trace billing. Your data stays on your infrastructure.
+- **Tamper-evident audit trail.** Every decision is logged with a checksum, so you have a verifiable record for EU AI Act Article 12.
+- **Drift detection.** See when an agent's behavior shifts from its baseline.
+- **Self-host or cloud.** Run it on your own Postgres with one Docker command, or use [ZizkaDB Cloud](https://db.zizka.ai). AGPL-3.0, no per-trace billing; self-hosted data never leaves your infrastructure.
 
 <p align="center">
   <a href="#quickstart-60-seconds"><img src="docs/assets/why-chain.svg" alt="Animated: db.why() walks from a tool_call back through llm_response to the root-cause user_message" width="900"/></a>
