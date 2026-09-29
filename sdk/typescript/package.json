@@ -1,7 +1,7 @@
 {
   "name": "zizkadb-sdk",
   "version": "0.2.8",
-  "description": "Self-hosted audit trail for AI agents — prove why an agent did something with causal lineage (why()), time-travel state, and drift baselines.",
+  "description": "Audit trail database for AI agents: tamper-evident, checksum-backed decision logs, session replay and time-travel debugging to support EU AI Act Article 12 record-keeping.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -34,7 +34,14 @@
     "behavioral-drift",
     "gdpr",
     "observability",
-    "zizkadb"
+    "zizkadb",
+    "audit-trail",
+    "tamper-evident",
+    "eu-ai-act",
+    "article-12",
+    "session-replay",
+    "time-travel-debugging",
+    "drift-detection"
   ],
   "author": "Zizka AI",
   "license": "AGPL-3.0",

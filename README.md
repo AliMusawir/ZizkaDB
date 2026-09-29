@@ -40,6 +40,7 @@ Every agent team eventually asks: *Why did it say that? Why did it call that too
 - [Integrations](#integrations)
 - [Connect your agent](#connect-your-agent)
 - [What it does](#what-it-does)
+- [Audit trail and EU AI Act Article 12](#audit-trail-and-eu-ai-act-article-12)
 - [How it works](#how-it-works)
 - [Use with your AI assistant (MCP)](#use-with-your-ai-assistant-mcp)
 - [ZizkaDB vs. tracing tools](#zizkadb-vs-tracing-tools)
@@ -186,8 +187,20 @@ From the terminal: `zizkadb why <event_id>`. Full guide: **[CONNECT.md](CONNECT.
 | `db.at(agent, timestamp)` | What the agent knew at a past moment |
 | `db.search(query)` | Semantic search over the agent's history |
 | `db.context_for(agent, task)` | Relevant past events, ready to inject into the next prompt |
-| `db.baseline(agent)` | Alerts when agent behavior drifts from past sessions |
+| `db.baseline(agent)` | Drift detection: alerts when agent behavior shifts from past sessions |
 | `db.forget(key, value)` | GDPR erasure by metadata filter, including the search index |
+
+### Audit trail and EU AI Act Article 12
+
+Article 12 of the EU AI Act requires high-risk AI systems to automatically keep logs of what they did. ZizkaDB gives you that record:
+
+- **Checksum-backed decision logs.** Every event is stored with a SHA-256 checksum of its content, so any later edit is detectable.
+- **Causally linked history.** Each decision points to the event that caused it, so an auditor can follow the full chain.
+- **Session replay.** Step through any past session event by event.
+- **Time-travel debugging.** Rebuild exactly what the agent knew at any moment with `db.at()`.
+- **Drift detection.** `db.baseline()` flags when an agent starts behaving differently from its history.
+
+ZizkaDB supports your record-keeping obligations; it doesn't make a system compliant on its own.
 
 <p align="center">
   <a href="https://db.zizka.ai"><img src="docs/assets/readme-hero-dashboard.png" alt="ZizkaDB dashboard showing agent activity" width="900"/></a>

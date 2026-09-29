@@ -5,13 +5,13 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "zizkadb-mcp"
 version = "0.1.7"
-description = "MCP server for ZizkaDB — operational database and audit trail for AI agents in Cursor, Claude Desktop, and any MCP client"
+description = "MCP server for ZizkaDB, the audit trail database for AI agents: query tamper-evident decision logs from Cursor, Claude Desktop, and any MCP client"
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
 requires-python = ">=3.10"
 authors = [{ name = "Zizka AI", email = "founder@zizka.ai" }]
-keywords = ["mcp", "ai", "agents", "audit", "observability", "zizkadb", "claude", "cursor", "causal-lineage"]
+keywords = ["mcp", "ai", "agents", "audit", "observability", "zizkadb", "claude", "cursor", "causal-lineage", "audit-trail", "tamper-evident", "eu-ai-act", "article-12", "session-replay", "time-travel-debugging", "drift-detection"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
