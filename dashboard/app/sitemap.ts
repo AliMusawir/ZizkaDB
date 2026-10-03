@@ -1,4 +1,5 @@
 import type { MetadataRoute } from 'next'
+import { IS_SELF_HOSTED } from '@/lib/constants'
 
 const SITE_URL = process.env.DASHBOARD_URL || 'https://db.zizka.ai'
 
@@ -16,6 +17,7 @@ const ROUTES: { path: string; changeFrequency: MetadataRoute.Sitemap[number]['ch
 ]
 
 export default function sitemap(): MetadataRoute.Sitemap {
+  if (IS_SELF_HOSTED) return []
   const now = new Date()
   return ROUTES.map((route) => ({
     url: `${SITE_URL}${route.path}`,

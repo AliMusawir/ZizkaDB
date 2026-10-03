@@ -42,12 +42,16 @@ def warn_if_production_cors_wildcard(cors_allowed_origins: list[str]) -> None:
 
 _DEFAULT_DEV_KEYS = frozenset({"zizkadb_dev_local", "agdb_dev_local"})
 _DEFAULT_JWT_SECRETS = frozenset({"", "dev-secret-change-in-production"})
+# Self-host dashboard admin token: the login rate limit keys on client IP, which
+# a client can vary, so the token itself must resist brute force.
+_MIN_SELFHOST_ADMIN_TOKEN_LEN = 16
 
 
 def validate_production_startup(
     env: str,
     dev_key: str,
     jwt_secret: str,
+    selfhost_admin_token: str = "",
 ) -> None:
     """Refuse production boot with known-insecure defaults."""
     if env != "production":
@@ -62,6 +66,13 @@ def validate_production_startup(
             "Refusing to start with ENV=production and default JWT_SECRET. "
             "Set a strong JWT_SECRET in infra/.env."
         )
+    token = selfhost_admin_token.strip()
+    if token and len(token) < _MIN_SELFHOST_ADMIN_TOKEN_LEN:
+        raise RuntimeError(
+            f"Refusing to start: SELFHOST_ADMIN_TOKEN is shorter than "
+            f"{_MIN_SELFHOST_ADMIN_TOKEN_LEN} characters. Generate one with: "
+            "python -c \"import secrets; print(secrets.token_urlsafe(32))\""
+        )
 
 
 @asynccontextmanager
@@ -72,6 +83,7 @@ async def lifespan(app: FastAPI):
             env,
             os.getenv("DEV_API_KEY", ""),
             os.getenv("JWT_SECRET", ""),
+            os.getenv("SELFHOST_ADMIN_TOKEN", ""),
         )
         from services.entitlements import limits_enforced
 

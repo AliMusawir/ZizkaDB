@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import { CookiePrivacyConsent } from '@/components/CookiePrivacyConsent'
+import { IS_SELF_HOSTED } from '@/lib/constants'
 import { MarketingSubscribePopup } from '@/components/MarketingSubscribePopup'
 
 const TAGLINE =
@@ -55,8 +56,9 @@ export default function RootLayout({
     <html lang="en">
       <body>
         {children}
-        <CookiePrivacyConsent />
-        <MarketingSubscribePopup />
+        {/* Website-only: a self-hosted instance has no marketing or tracking. */}
+        {!IS_SELF_HOSTED && <CookiePrivacyConsent />}
+        {!IS_SELF_HOSTED && <MarketingSubscribePopup />}
       </body>
     </html>
   );

@@ -6,6 +6,16 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Self-hosted dashboard is just the dashboard
+
+- Self-hosted builds (`NEXT_PUBLIC_DEPLOYMENT_MODE=self_hosted`, the default for the GHCR image) no longer serve the marketing site, signup, pricing, OTP login or billing UI. `http://localhost:3001/` goes straight to **Open my dashboard**.
+- New `GET /v1/auth/selfhost` and `POST /v1/auth/selfhost-login`: one-click sign-in when `ENV=development`; admin-token sign-in (`SELFHOST_ADMIN_TOKEN`) when `ENV=production`; login disabled in production without a token.
+- `validate-selfhost-config.sh` now requires `SELFHOST_ADMIN_TOKEN` (not `EMAIL_*`) for production self-host.
+- The API refuses to start in production when `SELFHOST_ADMIN_TOKEN` is set but shorter than 16 characters.
+- Docs and `validate-selfhost-config.sh` now say production needs a **unique random** `DEV_API_KEY` (the API already refused to boot with an empty/default one; the old docs said to unset it).
+- `quickstart-remote.sh` installs the demo SDK into a private venv (`~/.zizkadb/venv`), so it no longer fails on a broken active venv, pip `user = true` config, or externally-managed system Pythons.
+- `setup-local.sh` no longer crashes with `BUILD_FLAG[@]: unbound variable` on macOS's bash 3.2 when using pre-built images.
+
 ### OSS improvement sprint (Days 1–11, Sep 2026)
 
 Fifteen-day self-host / OSS hardening pass. User-visible highlights:

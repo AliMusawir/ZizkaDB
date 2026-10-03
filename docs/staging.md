@@ -14,7 +14,7 @@ Managed cloud operators apply this on the EC2 that also runs `db.zizka.ai` (priv
 | Dashboard (PM2) | `3001` | `3002` |
 | Postgres / Redis / Qdrant ports | `5432` / `6379` / `6333` | `5433` / `6380` / `6335` |
 | Env file | prod secrets | `infra/.env.staging` (different JWTs) |
-| Flags | `ENV=production`, no `DEV_API_KEY`, `NEXT_PUBLIC_DEV_MODE=false` | **same** |
+| Flags | `ENV=production`, unique random `DEV_API_KEY`, `NEXT_PUBLIC_DEV_MODE=false` | **same** |
 
 ## Bring up (API data plane)
 

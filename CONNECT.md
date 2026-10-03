@@ -241,12 +241,12 @@ Swagger: http://localhost:8000/swagger
 
 ## Production self-host
 
-Local dev uses the auto dev key. For a VPS with team login:
+Local dev uses the auto dev key. For a VPS:
 
-1. `docker compose -f infra/docker-compose.yml up -d`
-2. `bash infra/deploy-selfhost.sh`
-3. Set `EMAIL_*` in `infra/.env`, `NEXT_PUBLIC_DEV_MODE=false`
-4. Create API keys in Settings → use in SDK/MCP
+1. In `infra/.env` set `ENV=production`, `DEPLOYMENT_MODE=self_hosted` and `SELFHOST_ADMIN_TOKEN=<long-random>` (no email/SMTP needed)
+2. `docker compose -f infra/docker-compose.yml up -d`
+3. `bash infra/deploy-selfhost.sh`
+4. Open the dashboard → enter the admin token → create API keys in Settings → use them in SDK/MCP
 
 See [wiki/Self-Hosting](https://github.com/Zizka-ai/ZizkaDB/wiki/Self-Hosting) and [Production Deployment](https://github.com/Zizka-ai/ZizkaDB/wiki/Production-Deployment).
 

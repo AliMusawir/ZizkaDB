@@ -5,9 +5,10 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { verifyOtp, devLogin } from "@/lib/api";
 import { getToken, setToken } from "@/lib/auth";
-import { IS_DEV_MODE } from "@/lib/constants";
+import { IS_DEV_MODE, IS_SELF_HOSTED } from "@/lib/constants";
 import { BrandLogo } from "@/components/BrandLogo";
 import { OtpForm } from "@/components/auth/OtpForm";
+import { SelfHostLogin } from "@/components/auth/SelfHostLogin";
 
 function completeAuthRedirect(path: string) {
   window.location.assign(path);
@@ -89,6 +90,11 @@ function LoginForm() {
     } finally {
       setDevLoading(false);
     }
+  }
+
+  // Self-hosted: no email/OTP, signup or website links — just the owner sign-in.
+  if (IS_SELF_HOSTED) {
+    return <SelfHostLogin next={safeNext} />;
   }
 
   if (navigating) {

@@ -1,3 +1,4 @@
+import hmac
 import os
 import time
 import logging
@@ -31,6 +32,7 @@ from services.rate_limiter import (
     SlidingWindowStrategy,
 )
 from services.event_write import write_event
+from services.entitlements import is_self_hosted_deployment
 
 router = APIRouter()
 log = logging.getLogger(__name__)
@@ -270,6 +272,85 @@ async def dev_token_route():
     """
     if os.getenv("ENV", "development") != "development":
         raise forbidden("Not available in production")
+
+    pool = get_pool()
+    await _ensure_dev_tenant(pool)
+    tokens = _issue_tokens(_DEV_USER_ID, _DEV_EMAIL, _DEV_TENANT_ID)
+    return {"access_token": tokens["access_token"], "token_type": "bearer"}
+
+
+SelfHostLoginMode = Literal["one_click", "admin_token", "unavailable"]
+
+
+def _selfhost_login_mode() -> SelfHostLoginMode:
+    """
+    How the self-hosted dashboard signs in. Fails closed: a production
+    instance without SELFHOST_ADMIN_TOKEN gets no login at all, never one-click.
+    """
+    if os.getenv("ENV", "development") == "development":
+        return "one_click"
+    if (os.getenv("SELFHOST_ADMIN_TOKEN") or "").strip():
+        return "admin_token"
+    return "unavailable"
+
+
+class SelfHostLoginBody(BaseModel):
+    token: str | None = None
+
+
+selfhost_login_limiter = RateLimiter(
+    limit=10,
+    window_sec=60,
+    storage=_otp_storage(),
+    strategy=SlidingWindowStrategy(),
+    detail="Too many sign-in attempts. Wait a minute and try again.",
+)
+
+
+def _selfhost_login_allowed() -> bool:
+    """
+    Self-host sign-in is offered on self-hosted deployments, and on any
+    ENV=development instance (same rule as /dev-token, so local stacks whose
+    .env predates DEPLOYMENT_MODE keep working). Managed production: never.
+    """
+    return is_self_hosted_deployment() or os.getenv("ENV", "development") == "development"
+
+
+@router.get("/selfhost")
+async def selfhost_config_route():
+    """Public: tells the dashboard whether to show the self-host login and which kind."""
+    if not _selfhost_login_allowed():
+        return {"self_hosted": False, "login": None}
+    return {"self_hosted": True, "login": _selfhost_login_mode()}
+
+
+@router.post("/selfhost-login")
+async def selfhost_login_route(request: Request, body: SelfHostLoginBody | None = None):
+    """
+    Sign in to a self-hosted instance as its single owner tenant — no email,
+    no signup. One-click when ENV=development; otherwise requires
+    SELFHOST_ADMIN_TOKEN. Uses the same fixed tenant as /dev-token so
+    existing local data stays visible.
+    """
+    if not _selfhost_login_allowed():
+        raise not_found("Not found")
+
+    try:
+        await selfhost_login_limiter.check(f"selfhost:{client_ip(request)}")
+    except HTTPException:
+        raise
+    except Exception:
+        log.exception("selfhost-login rate limit backend unavailable")
+        raise service_unavailable("Login temporarily unavailable. Please try again shortly.")
+
+    mode = _selfhost_login_mode()
+    if mode == "unavailable":
+        raise forbidden("Set SELFHOST_ADMIN_TOKEN in your .env to enable dashboard login.")
+    if mode == "admin_token":
+        expected = (os.getenv("SELFHOST_ADMIN_TOKEN") or "").strip()
+        supplied = ((body.token if body else None) or "").strip()
+        if not hmac.compare_digest(supplied.encode(), expected.encode()):
+            raise unauthorized("Invalid admin token")
 
     pool = get_pool()
     await _ensure_dev_tenant(pool)

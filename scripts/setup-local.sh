@@ -87,7 +87,8 @@ if [ ${#BUILD_FLAG[@]} -gt 0 ]; then
 fi
 
 echo "→ Starting API + Postgres + Qdrant + Redis + Dashboard..."
-docker compose "${COMPOSE[@]}" up -d "${BUILD_FLAG[@]}"
+# ${arr[@]+...}: an empty array is "unbound" under set -u on macOS bash 3.2.
+docker compose "${COMPOSE[@]}" up -d ${BUILD_FLAG[@]+"${BUILD_FLAG[@]}"}
 
 echo "→ Waiting for API health..."
 for i in $(seq 1 30); do

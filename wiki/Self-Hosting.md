@@ -57,11 +57,23 @@ bash scripts/stop-native-stack.sh
 | Redis | localhost:6379 (native) or internal (Docker) |
 | Qdrant | localhost:6333 (native) or internal (Docker) |
 
-## Dashboard login (local)
+## Dashboard login
 
-1. Open http://localhost:3001/login
-2. Click **Open my dashboard →** (dev mode, no email)
-3. Create agents and keys like production
+A self-hosted dashboard is only your dashboard: there is no website, signup, pricing or email login. Opening http://localhost:3001/ takes you straight to the sign-in page (or into the dashboard if you're already signed in). Accounts and plans live on the managed cloud at zizka.ai.
+
+- **Local (`ENV=development`):** click **Open my dashboard →**. No email, no token.
+- **Server (`ENV=production`):** the same page asks for an admin token. Set `SELFHOST_ADMIN_TOKEN` in `infra/.env` (generate with `python -c "import secrets; print(secrets.token_urlsafe(32))"`) and restart the API. Without it, dashboard login is disabled — it never falls back to one-click.
+
+Both sign in as the instance's single owner tenant, so your existing data stays visible. Then create agents and keys like production.
+
+Notes for servers:
+
+- The token must be at least 16 characters — the API refuses to start otherwise. Use a long random value; sign-in attempts are rate-limited (10/min per IP), but the token itself is what keeps people out.
+- Anyone with the token gets full access to the one owner workspace. There are no per-user accounts on a self-hosted instance.
+- Sessions last 7 days. Changing `SELFHOST_ADMIN_TOKEN` stops new sign-ins with the old token. To also sign out existing sessions, rotate `JWT_SECRET` and restart the API.
+- Put the API behind a reverse proxy (nginx) that sets `X-Forwarded-For`, so rate limiting sees real client IPs.
+
+> If you previously signed in to a production self-host with email OTP, that data belongs to your OTP account's tenant, not the owner tenant. Open an issue if you need help moving it.
 
 For local smoke testing, prefer `npm run build && npx next start -p 3001` (used by `restart-native-stack.sh`). `npm run dev` requires **Node 20+** (see `dashboard/.nvmrc`).
 
@@ -129,9 +141,9 @@ Configure in `infra/.env`:
 - `REDIS_URL`
 - `QDRANT_URL`
 - `JWT_SECRET` / `JWT_REFRESH_SECRET`
-- `EMAIL_*` for OTP login
+- `SELFHOST_ADMIN_TOKEN` — required to sign in to the dashboard when `ENV=production` (no email/SMTP needed)
 - `ENV=production` (disables dev key bypass)
-- **Do not set** `DEV_API_KEY` in production
+- `DEV_API_KEY` — set a unique random value (`openssl rand -hex 24`) — the API refuses to start in production if it is empty or the default, and never accepts it as auth there
 - `DEPLOYMENT_MODE=self_hosted` — keep this set even in production. `ENV=production` alone doesn't distinguish a self-hosted install from managed cloud (both use it), so this separate flag is what makes plan-based entitlement checks (e.g. API key limits) resolve to the Self-Hosted plan instead of whatever is in `users.plan`.
 - `EMBEDDINGS_ENABLED=false` — default for self-host. Set to `true` only when you want semantic search / vector indexing; then configure `OPENAI_API_KEY` (or your provider key in Dashboard → Settings).
 - `API_KEY_LIMITS_ENFORCED=true` — enable per-plan API key caps (Self-Hosted: 1, Pro: 2, Team: 5). Default `false`; self-hosted installs are uncapped unless you set this.

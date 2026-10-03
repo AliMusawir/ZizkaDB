@@ -65,6 +65,8 @@ services:
       ENV: ${ENV:-development}
       DEV_API_KEY: ${DEV_API_KEY:-zizkadb_dev_local}
       DEPLOYMENT_MODE: ${DEPLOYMENT_MODE:-self_hosted}
+      # Self-hosted dashboard sign-in when ENV=production (empty = login disabled).
+      SELFHOST_ADMIN_TOKEN: ${SELFHOST_ADMIN_TOKEN:-}
       PUBLIC_API_URL: ${PUBLIC_API_URL:-http://localhost:8000}
       DASHBOARD_URL: ${DASHBOARD_URL:-http://localhost:3001}
     depends_on:

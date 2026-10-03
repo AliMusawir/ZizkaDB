@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import { ChevronDown, LogOut, Settings } from 'lucide-react'
 import { API, getBillingStatus, type BillingStatus } from '@/lib/api'
 import { clearToken, getSessionEmail, getToken } from '@/lib/auth'
-import { IS_DEV_MODE } from '@/lib/constants'
+import { IS_DEV_MODE, IS_SELF_HOSTED } from '@/lib/constants'
 import { colors, radii } from '@/lib/design-tokens'
 import { useConnectionHealth, type HealthState } from '@/hooks/useConnectionHealth'
 import { useEdition } from '@/hooks/useEdition'
@@ -89,10 +89,10 @@ export function AccountMenu() {
   const hm = HEALTH_META[health]
   const initial = (email?.[0] ?? 'U').toUpperCase()
   // Plan/trial is a managed-cloud billing concept — never meaningful on a
-  // self-hosted install, so hide it there. The email in dev mode is the
-  // synthetic `dev@localhost` login placeholder, so hide that too.
+  // self-hosted install, so hide it there. The email in dev/self-host mode is
+  // the synthetic `dev@localhost` owner placeholder, so hide that too.
   const showBilling = !isOss && !!planLabel
-  const showEmail = !!email && !IS_DEV_MODE
+  const showEmail = !!email && !IS_DEV_MODE && !IS_SELF_HOSTED
 
   function signOut() {
     clearToken()
@@ -212,9 +212,9 @@ export function AccountMenu() {
             >
               {API || 'same-origin (nginx)'}
             </code>
-            {IS_DEV_MODE && (
+            {(IS_DEV_MODE || IS_SELF_HOSTED) && (
               <p className="text-xs mt-1" style={{ color: colors.textFaint }}>
-                Self-hosted · local dev tenant
+                Self-hosted · owner tenant
               </p>
             )}
           </div>

@@ -19,11 +19,11 @@ Minimum checklist:
 | Setting | Why |
 |---------|-----|
 | `ENV=production` | Disables dev API keys (`zizkadb_dev_local`) |
-| Unset or empty `DEV_API_KEY` | No bypass auth in production |
-| `NEXT_PUBLIC_DEV_MODE=false` | Dashboard requires OTP login (build arg + env) |
+| `DEV_API_KEY` = unique random value | The API refuses to boot with an empty/default key in production; it is never accepted as auth there |
+| `SELFHOST_ADMIN_TOKEN` | Dashboard sign-in for your server (long random value). Without it, dashboard login is disabled |
 | `JWT_SECRET` | Generate with `openssl rand -hex 32` — not the default |
 | `DEPLOYMENT_MODE=self_hosted` | Resolves self-host plan entitlements (1 API key cap when enforced) |
-| `EMAIL_*` SMTP vars | OTP login for team members |
+| `NEXT_PUBLIC_DEPLOYMENT_MODE=self_hosted` | Dashboard serves only sign-in + dashboard, no website/signup (default in the Docker image and `deploy-selfhost.sh`) |
 | TLS in front of API + dashboard | nginx or your load balancer |
 
 See [[Self-Hosting]] for the full Docker Compose flow and `bash infra/deploy-selfhost.sh`.

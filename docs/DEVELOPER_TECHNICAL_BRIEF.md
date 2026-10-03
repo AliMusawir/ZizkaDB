@@ -211,7 +211,7 @@ Base URL: `https://db.zizka.ai` (self-host: your host, port **8000**).
 
 - Production API keys: prefix **`zizkadb_live_`**
 - Dashboard login uses JWT (OTP email)
-- Self-host dev: optional `DEV_API_KEY` in `.env` (never in production)
+- Self-host dev: optional `DEV_API_KEY` in `.env` (production: must be a unique random value — never the default; it is not accepted as auth there)
 
 | Area | Method | Path | Purpose |
 |------|--------|------|---------|

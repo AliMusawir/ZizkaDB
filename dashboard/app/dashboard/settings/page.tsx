@@ -429,7 +429,9 @@ export default function SettingsPage() {
             disabled={tenantKeyCreating || quota.at_limit}
             title={
               quota.at_limit
-                ? "API key limit reached — upgrade your plan to create more"
+                ? isOss
+                  ? "API key limit reached — raise API_KEY_LIMIT_<plan> in your server env"
+                  : "API key limit reached — upgrade your plan to create more"
                 : undefined
             }
             className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-black disabled:opacity-40 disabled:cursor-not-allowed"

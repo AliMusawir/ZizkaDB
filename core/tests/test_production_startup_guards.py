@@ -42,6 +42,17 @@ class TestValidateProductionStartup:
         with pytest.raises(RuntimeError, match="JWT_SECRET"):
             validate_production_startup("production", "unique-dev-key", "")
 
+    def test_production_rejects_short_selfhost_admin_token(self):
+        with pytest.raises(RuntimeError, match="SELFHOST_ADMIN_TOKEN"):
+            validate_production_startup("production", "unique-dev-key", "unique-jwt-secret", "admin")
+
+    def test_production_accepts_strong_or_unset_selfhost_admin_token(self):
+        validate_production_startup("production", "unique-dev-key", "unique-jwt-secret", "x" * 16)
+        validate_production_startup("production", "unique-dev-key", "unique-jwt-secret", "")
+
+    def test_development_ignores_short_selfhost_admin_token(self):
+        validate_production_startup("development", "zizkadb_dev_local", "", "admin")
+
     def test_production_accepts_unique_secrets(self):
         validate_production_startup(
             "production",

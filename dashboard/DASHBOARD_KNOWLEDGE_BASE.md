@@ -71,7 +71,8 @@ app/dashboard/layout.tsx
 **API integration:** single module `lib/api.ts`. All calls go through `apiFetch(path, token, options)` which injects `Authorization: Bearer <token>`, `Content-Type: application/json`, enforces a **30s timeout** (`API_FETCH_TIMEOUT_MS`), clears auth + redirects on **401**, and throws normalized `Error(detail)` on other non-2xx. Base URL from `NEXT_PUBLIC_API_URL` (empty string → same-origin, routed by nginx to FastAPI). Plan metadata for signup/marketing: `lib/plans.ts` (Pro/Team caps must match `PLAN_ENTITLEMENTS`).
 
 **Feature flags (env):**
-- `NEXT_PUBLIC_DEV_MODE === 'true'` → self-host mode: enables dev-token login, changes onboarding copy.
+- `NEXT_PUBLIC_DEV_MODE === 'true'` → legacy dev-token button on the managed login page, changes onboarding copy.
+- `NEXT_PUBLIC_DEPLOYMENT_MODE === 'self_hosted'` (`IS_SELF_HOSTED`, `lib/constants.ts`) → self-hosted build: `middleware.ts` redirects `/` and every website route (signup, pricing, docs, trust, community…) to `/dashboard` (signed in) or `/login`; `/login` renders `SelfHostLogin` (no OTP/signup); cookie banner + marketing popup hidden; robots disallow-all, empty sitemap. Unset or `managed` = full website (managed PM2 build never sets it).
 - `NEXT_PUBLIC_API_URL` → API base (default same-origin; login dev-token defaults to `http://localhost:8000`).
 
 **Loading/error handling:** per-page. Suspense boundaries wrap pages using `useSearchParams` (`/signup`, `/signup/start`, `/signup/checkout`, `/signup/success`, `/login`) — required by Next for CSR bailout. Errors are local component state rendered inline.
@@ -312,7 +313,7 @@ There is a **separate** lead-capture path (`lib/demo.ts` → `submitDemoRequest`
 
 **Plan selection persistence:** `selectBillingPlan` called best-effort after OTP (`signup/page.tsx`) to persist the plan chosen in the funnel.
 
-**Feature gating:** Self-host (`DEV_MODE`) enables dev-token login and changes onboarding copy; billing is not enforced anywhere.
+**Feature gating:** Self-host (`NEXT_PUBLIC_DEPLOYMENT_MODE=self_hosted`) serves only `/login` + `/dashboard/*`, with sign-in decided at runtime by `GET /v1/auth/selfhost`: `one_click` (API `ENV=development`), `admin_token` (`ENV=production` + `SELFHOST_ADMIN_TOKEN`), or `unavailable` (production without a token — fails closed). Both sign in as the fixed owner tenant (same IDs as dev-token). Billing/plan UI and "upgrade" copy are hidden for OSS. Billing is not enforced anywhere.
 
 **API key plan limits:** the number of **active** (`revoked = FALSE`) API keys per tenant is capped by plan — Self-Hosted 1, Pro 2, Team 5; every other case (no/unknown plan) is **unlimited** when enforcement is off.
 
@@ -378,7 +379,7 @@ Landing → (Pricing: Pro) → `/signup?plan=pro` → `/signup/start` (consent) 
 - **Deleted account re-register:** after delete, `/login?deleted=1` banner → `/signup/plan`; signup path sends `intent=signup` + GDPR consent (not login verify).
 - **Login with unknown email:** request-otp **404** → "Create account" CTA to `/signup/plan`.
 - **Returning login:** `/login` → OTP (auto-submit at 6 digits, resend cooldown) → hard redirect `/dashboard`.
-- **Self-host (DEV_MODE):** `/login` → "Open my dashboard" (dev-token) → `/dashboard`.
+- **Self-host (`DEPLOYMENT_MODE=self_hosted`):** `/` → `/login` → "Open my dashboard" (one-click, or admin token in production) → `/dashboard`. No website, signup, OTP or billing.
 - **Trial expiry / past_due:** `TenantPlanBanner` shows plan + trial end; no checkout redirect (billing not enforced).
 - **Account deletion:** Settings → delete modal → optional retention trial → confirm "DELETE" → `clearSignupSession()` → `/login?deleted=1`.
 - **Legacy URLs:** `/signup/checkout` → `/signup/plan`; `/signup/success` → `/dashboard`.
@@ -543,6 +544,8 @@ Router prefixes are mounted in `core/main.py:66-79`.
 | `requestOtp` | POST `/v1/auth/request-otp` | `auth.py:58` |
 | `verifyOtp` | POST `/v1/auth/verify-otp` | `auth.py:80` |
 | dev-token (`login/page.tsx`) | POST `/v1/auth/dev-token` | `auth.py:151` |
+| `getSelfHostConfig` | GET `/v1/auth/selfhost` (public) | `auth.py` `selfhost_config_route` |
+| `selfHostLogin` | POST `/v1/auth/selfhost-login` (public, 10/min/IP) | `auth.py` `selfhost_login_route` |
 | `sendTestEvent` | POST `/v1/auth/test-event` | `auth.py:187` |
 | `getApiKeys` | GET `/v1/auth/api-keys` | `auth.py:205` |
 | `getApiKeyUsage` | GET `/v1/auth/api-keys/usage` | `auth.py` |
@@ -721,6 +724,7 @@ The logic that drives every dashboard gate and funnel branch. Routers are thin; 
 - **request-otp** (`core/api/auth.py:58-77`): rate-limited 10/15min; `intent="signup"` + existing email → **409** "already registered".
 - **verify-otp** (`core/api/auth.py:80-121`): new users **must** pass `gdpr_consent=true` (else 401 ValueError); sets a **HttpOnly, Secure, SameSite=Lax refresh-token cookie** (30-day, `auth.py:104-112`); returns access token + billing routing flags. Consent fields persisted.
 - **dev-token** (`core/api/auth.py:151-164`): development only (403 in prod).
+- **selfhost / selfhost-login** (`core/api/auth.py`): offered when `DEPLOYMENT_MODE=self_hosted` or `ENV=development` (404 on managed production). Mode: `one_click` in development; `admin_token` in production when `SELFHOST_ADMIN_TOKEN` is set (constant-time compare, 401 on mismatch); `unavailable` (403) otherwise. Rate-limited 10/min per IP (Redis in production). Issues the fixed owner-tenant JWT (same as dev-token).
 
 ### 18.3 Account (`core/api/account.py` + `core/services/account.py`) — JWT only
 

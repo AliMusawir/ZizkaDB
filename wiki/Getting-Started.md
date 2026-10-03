@@ -58,7 +58,7 @@ bash scripts/setup-local.sh
 >
 > **Local dev:** login → *Open my dashboard →* + `ZizkaDB(host="http://localhost:8000")`
 >
-> **Production VPS:** email OTP → API key in Settings → paste into SDK/MCP
+> **Production VPS:** admin token (`SELFHOST_ADMIN_TOKEN`) → API key in Settings → paste into SDK/MCP
 
 ---
 

@@ -38,12 +38,23 @@ run_demo() {
     return 0
   fi
 
-  echo "→ Installing SDK from PyPI..."
-  python3 -m pip install -q zizkadb-sdk
+  # Install the SDK into a private venv so the demo never depends on (or
+  # modifies) the caller's Python: active venvs, pip "user = true" config,
+  # PEP 668 externally-managed system Pythons, broken editable installs.
+  local venv="${INSTALL_DIR}/venv"
+  local py=python3
+  echo "→ Installing SDK from PyPI (private venv: ${venv})..."
+  if [ -x "${venv}/bin/python" ] || python3 -m venv "$venv" >/dev/null 2>&1; then
+    py="${venv}/bin/python"
+    PIP_USER=0 "$py" -m pip install -q --disable-pip-version-check --upgrade zizkadb-sdk
+  else
+    echo "WARN: could not create a venv (python3-venv missing?) — installing into python3."
+    PIP_USER=0 python3 -m pip install -q --disable-pip-version-check zizkadb-sdk
+  fi
 
   echo ""
   echo "→ Running causal lineage demo..."
-  zizkadb demo || python3 -c "
+  "$py" -m zizkadb.cli demo || "$py" -c "
 import asyncio
 from zizkadb import ZizkaDB
 async def main():
@@ -64,6 +75,7 @@ asyncio.run(main())
   echo "              (login gate: http://localhost:3001/login → Open my dashboard →)"
   echo "  API:        http://localhost:8000/health"
   echo "  Connect:    https://github.com/${REPO}/blob/${REF}/CONNECT.md"
+  echo "  Demo again: ${py} -m zizkadb.cli demo"
   echo ""
 }
 

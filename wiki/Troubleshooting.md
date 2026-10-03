@@ -12,6 +12,12 @@
 | Dashboard empty after demo | Login → **Open my dashboard →** → agent **support-bot** |
 | `/health` is 200 but events fail | `/health` is liveness only. Check `curl http://localhost:8000/health/deep` for Postgres/Redis/Qdrant |
 | `zizkadb demo` fails | Ensure API healthy: `curl http://localhost:8000/health` |
+| `curl: (6) Could not resolve host: raw.githubusercontent.com` | DNS/network issue on your machine. Try another DNS (`1.1.1.1`), toggle VPN, or clone the repo and run `bash scripts/setup-local.sh` |
+| `ERROR: Can not perform a '--user' install. User site-packages are not visible in this virtualenv.` | Your global pip config forces `--user`. Run `pip config unset global.user` (or `export PIP_USER=0`) and re-run |
+| `ModuleNotFoundError: No module named 'zizkadb'` right after installing (macOS, Python 3.13+) | Python 3.13 skips hidden `.pth` files, and macOS marks files hidden inside a `.venv` in iCloud-synced folders (Desktop/Documents). Editable installs (`pip install -e`) break. Install normally (`pip install ./sdk/python`) or move the repo out of Desktop/Documents |
+| `localhost:3001` shows the marketing website / signup instead of **Open my dashboard** | Old dashboard image. Pull the latest: `docker compose -f ~/.zizkadb/infra/docker-compose.quickstart.yml pull dashboard && docker compose -f ~/.zizkadb/infra/docker-compose.quickstart.yml up -d dashboard` |
+| Login page: "not running in self-hosted mode" | Set `DEPLOYMENT_MODE=self_hosted` in `infra/.env` and restart the API |
+| Login page: "Dashboard login is turned off" | `ENV=production` without `SELFHOST_ADMIN_TOKEN`. Set it in `infra/.env` and restart the API |
 
 ---
 

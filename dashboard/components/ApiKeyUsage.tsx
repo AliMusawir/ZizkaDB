@@ -1,6 +1,7 @@
 'use client'
 
 import type { ApiKeyQuota } from '@/hooks/useApiKeyQuota'
+import { IS_SELF_HOSTED } from '@/lib/constants'
 
 /**
  * Account-wide API key usage indicator. Renders nothing when the plan is
@@ -41,8 +42,9 @@ export function ApiKeyUsage({
       </div>
       {at_limit && (
         <p className="text-xs mt-1.5" style={{ color: '#f87171' }}>
-          You&apos;ve reached the maximum number of API keys allowed for your current plan.
-          Please upgrade your subscription to create additional API keys.
+          {IS_SELF_HOSTED
+            ? 'You\'ve reached the API key limit for this server. Raise API_KEY_LIMIT_<plan> in your server env to create more.'
+            : 'You\'ve reached the maximum number of API keys allowed for your current plan. Please upgrade your subscription to create additional API keys.'}
         </p>
       )}
     </div>

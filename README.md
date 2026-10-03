@@ -73,7 +73,9 @@ tool_call · lookup_order · ORD-8842
         └── user_message · Why was my order delayed?
 ```
 
-**4. Open the dashboard.** [localhost:3001/login](http://localhost:3001/login) → **Open my dashboard** → Activity → click any event → **Why? (causal)** tab.
+**4. Open the dashboard.** [localhost:3001](http://localhost:3001) → **Open my dashboard** → Activity → click any event → **Why? (causal)** tab.
+
+The self-hosted dashboard is just your dashboard: no signup, no email, no account. Accounts and plans exist only on [ZizkaDB Cloud](https://db.zizka.ai).
 
 Run the demo again anytime: `pip install zizkadb-sdk && zizkadb demo`
 
@@ -87,8 +89,22 @@ bash scripts/setup-local.sh
 | Service | URL |
 |---------|-----|
 | API | http://localhost:8000 |
-| Dashboard | http://localhost:3001/login |
+| Dashboard | http://localhost:3001 → **Open my dashboard** |
 | Swagger | http://localhost:8000/swagger |
+
+### Self-host on a server
+
+On a machine other people can reach, set these in `infra/.env` before starting the stack:
+
+```bash
+ENV=production                      # turns off the one-click button and dev API keys
+DEV_API_KEY=<random>                # must not be the default, or the API refuses to start
+JWT_SECRET=<random>                 # openssl rand -hex 32 (also JWT_REFRESH_SECRET)
+DEPLOYMENT_MODE=self_hosted
+SELFHOST_ADMIN_TOKEN=<long-random>  # python -c "import secrets; print(secrets.token_urlsafe(32))"
+```
+
+The dashboard then asks for the admin token instead of showing the one-click button. Without `SELFHOST_ADMIN_TOKEN`, dashboard login stays disabled. Everyone who has the token signs in to the same single owner workspace. Check your config with `bash scripts/validate-selfhost-config.sh --production`. Full steps: [wiki/Self-Hosting](https://github.com/Zizka-ai/ZizkaDB/wiki/Self-Hosting).
 
 Full guide: **[DEVELOPMENT.md](DEVELOPMENT.md)** · Troubleshooting: [wiki/Troubleshooting.md](wiki/Troubleshooting.md)
 

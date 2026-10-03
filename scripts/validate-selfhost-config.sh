@@ -85,21 +85,35 @@ if [ "$PRODUCTION_MODE" -eq 1 ]; then
   else
     ok "ENV=production"
   fi
-  if [ -n "${DEV_API_KEY:-}" ]; then
-    fail "DEV_API_KEY must be unset in production"
-  else
-    ok "DEV_API_KEY not set (production)"
-  fi
+  # The API refuses to boot in production with an empty or default DEV_API_KEY
+  # (compose substitutes the default when unset), and never accepts it as auth.
+  case "${DEV_API_KEY:-}" in
+    ""|zizkadb_dev_local|agdb_dev_local)
+      fail "DEV_API_KEY must be a unique random value in production (the API refuses to start otherwise)" ;;
+    *)
+      ok "DEV_API_KEY is a unique value (not accepted as auth in production)" ;;
+  esac
   if [ "${DEPLOYMENT_MODE:-managed}" != "self_hosted" ]; then
     warn "DEPLOYMENT_MODE is not 'self_hosted' — plan-based entitlement checks (e.g. API key limits) will not apply the Self-Hosted plan"
+    # Not self-hosted: the dashboard signs in with email OTP.
+    for var in EMAIL_HOST EMAIL_USER EMAIL_PASS; do
+      if [ -z "${!var:-}" ]; then
+        fail "$var required for OTP login in production mode validation"
+      fi
+    done
   else
     ok "DEPLOYMENT_MODE=self_hosted"
-  fi
-  for var in EMAIL_HOST EMAIL_USER EMAIL_PASS; do
-    if [ -z "${!var:-}" ]; then
-      fail "$var required for OTP login in production mode validation"
+    # Self-hosted dashboard signs in with the admin token — no email needed.
+    if [ -z "${SELFHOST_ADMIN_TOKEN:-}" ]; then
+      fail "SELFHOST_ADMIN_TOKEN required — without it dashboard login is disabled in production"
+    elif [ "${#SELFHOST_ADMIN_TOKEN}" -lt 16 ]; then
+      fail "SELFHOST_ADMIN_TOKEN is shorter than 16 chars — the API refuses to start. Use: python -c \"import secrets; print(secrets.token_urlsafe(32))\""
+    elif [ "${#SELFHOST_ADMIN_TOKEN}" -lt 24 ]; then
+      warn "SELFHOST_ADMIN_TOKEN is short (<24 chars) — use: python -c \"import secrets; print(secrets.token_urlsafe(32))\""
+    else
+      ok "SELFHOST_ADMIN_TOKEN set"
     fi
-  done
+  fi
 else
   if [ "$ENV_VAL" = "production" ]; then
     warn "ENV=production in infra/.env — dev key bypass disabled"

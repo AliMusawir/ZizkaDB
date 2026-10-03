@@ -61,7 +61,8 @@ if ! curl -sf -o /dev/null http://127.0.0.1:3001/login 2>/dev/null; then
     echo "→ Building dashboard (first time, may take several minutes)"
     (
       cd dashboard
-      NEXT_PUBLIC_API_URL=http://localhost:8000 NEXT_PUBLIC_DEV_MODE=true npm run build
+      NEXT_PUBLIC_API_URL=http://localhost:8000 NEXT_PUBLIC_DEV_MODE=true \
+        NEXT_PUBLIC_DEPLOYMENT_MODE=self_hosted npm run build
     )
   fi
   echo "→ Starting dashboard on :3001"

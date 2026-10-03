@@ -757,6 +757,40 @@ export async function devLogin(): Promise<{ access_token: string }> {
   return res.json()
 }
 
+export type SelfHostLoginMode = 'one_click' | 'admin_token' | 'unavailable'
+
+export interface SelfHostConfig {
+  self_hosted: boolean
+  login: SelfHostLoginMode | null
+}
+
+// Public — which sign-in the self-hosted dashboard should show.
+export async function getSelfHostConfig(): Promise<SelfHostConfig> {
+  const res = await fetch(`${API}/v1/auth/selfhost`)
+  if (!res.ok) {
+    throw new AuthRequestError(`API returned ${res.status}`, res.status)
+  }
+  return res.json()
+}
+
+// Self-host only — signs in as the instance's single owner tenant.
+// `token` is the SELFHOST_ADMIN_TOKEN; omit it in one-click mode.
+export async function selfHostLogin(token?: string): Promise<{ access_token: string }> {
+  const res = await fetch(`${API}/v1/auth/selfhost-login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(token ? { token } : {}),
+  })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: res.statusText }))
+    throw new AuthRequestError(
+      formatApiError(err.detail, 'Sign-in failed'),
+      res.status,
+    )
+  }
+  return res.json()
+}
+
 export interface BillingStatus {
   enforced: boolean
   has_access: boolean

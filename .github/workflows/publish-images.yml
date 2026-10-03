@@ -53,6 +53,7 @@ jobs:
           build-args: |
             NEXT_PUBLIC_API_URL=http://localhost:8000
             NEXT_PUBLIC_DEV_MODE=false
+            NEXT_PUBLIC_DEPLOYMENT_MODE=self_hosted
           tags: |
             ${{ env.DASHBOARD_IMAGE }}:latest
             ${{ env.DASHBOARD_IMAGE }}:${{ steps.meta.outputs.tag }}
