@@ -11,8 +11,8 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  API_IMAGE: ghcr.io/zizka-ai/zizkadb-api
-  DASHBOARD_IMAGE: ghcr.io/zizka-ai/zizkadb-dashboard
+  API_IMAGE: ghcr.io/zizka-ai-sl/zizkadb-api
+  DASHBOARD_IMAGE: ghcr.io/zizka-ai-sl/zizkadb-dashboard
 
 jobs:
   publish:
@@ -65,7 +65,7 @@ jobs:
           set -euo pipefail
           for pkg in zizkadb-api zizkadb-dashboard; do
             echo "→ Setting visibility=public for ${pkg}"
-            gh api --method PATCH "/orgs/zizka-ai/packages/container/${pkg}" \
+            gh api --method PATCH "/orgs/ZIZKA-AI-SL/packages/container/${pkg}" \
               -f visibility=public \
               || echo "WARN: could not set ${pkg} public — enable manually in GitHub Packages settings"
           done

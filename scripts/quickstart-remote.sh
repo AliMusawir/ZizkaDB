@@ -104,7 +104,7 @@ curl -fsSL "${BASE}/infra/docker-compose.quickstart.yml" -o "${INFRA}/docker-com
 curl -fsSL "${BASE}/core/db/schema.sql" -o "${INFRA}/schema.sql"
 curl -fsSL "${BASE}/infra/.env.quickstart" -o "${INFRA}/.env"
 
-echo "→ Pulling pre-built images from ghcr.io/zizka-ai/ (first run may take 5–10 min)..."
+echo "→ Pulling pre-built images from ghcr.io/zizka-ai-sl/ (first run may take 5–10 min)..."
 cd "${INFRA}"
 if ! docker compose -f docker-compose.quickstart.yml pull; then
   fallback_shallow_clone

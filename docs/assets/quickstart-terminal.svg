@@ -37,7 +37,7 @@ text{font:13.5px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-spac
 <text class="l0 cmd" x="28" y="70"><tspan class="p">$ </tspan>curl -fsSL https://raw.githubusercontent.com/Zizka-ai/ZizkaDB/main/scripts/quickstart-remote.sh | bash</text>
 <text class="l1 acc" x="28" y="94">  ZizkaDB — remote quickstart (no repo clone)</text>
 <text class="l2 out" x="28" y="118">→ Downloading compose + schema (not the full repo)...</text>
-<text class="l3 out" x="28" y="142">→ Pulling pre-built images from ghcr.io/zizka-ai/ ...</text>
+<text class="l3 out" x="28" y="142">→ Pulling pre-built images from ghcr.io/zizka-ai-sl/ ...</text>
 <text class="l4 out" x="28" y="166">→ Starting stack (postgres, qdrant, redis, api, dashboard)...</text>
 <text class="l5 ok" x="28" y="190">✔ API healthy on http://localhost:8000</text>
 <text class="l6 out" x="28" y="214">→ Installing SDK from PyPI...</text>

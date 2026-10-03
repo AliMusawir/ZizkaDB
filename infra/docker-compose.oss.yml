@@ -7,9 +7,9 @@
 
 services:
   api:
-    image: ghcr.io/zizka-ai/zizkadb-api:${ZIZKADB_IMAGE_TAG:-latest}
+    image: ghcr.io/zizka-ai-sl/zizkadb-api:${ZIZKADB_IMAGE_TAG:-latest}
     pull_policy: always
 
   dashboard:
-    image: ghcr.io/zizka-ai/zizkadb-dashboard:${ZIZKADB_IMAGE_TAG:-latest}
+    image: ghcr.io/zizka-ai-sl/zizkadb-dashboard:${ZIZKADB_IMAGE_TAG:-latest}
     pull_policy: always

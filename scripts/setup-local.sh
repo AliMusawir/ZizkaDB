@@ -61,12 +61,12 @@ BUILD_FLAG=( --build )
 
 if [ "$USE_PREBUILT" = "0" ]; then
   echo "→ Building images locally (ZIZKADB_USE_PREBUILT_IMAGES=0)"
-elif docker manifest inspect "ghcr.io/zizka-ai/zizkadb-api:${IMAGE_TAG}" >/dev/null 2>&1; then
+elif docker manifest inspect "ghcr.io/zizka-ai-sl/zizkadb-api:${IMAGE_TAG}" >/dev/null 2>&1; then
   COMPOSE+=( -f infra/docker-compose.oss.yml )
   BUILD_FLAG=()
   echo "→ Using pre-built GHCR images (tag: ${IMAGE_TAG})"
 elif [ "$USE_PREBUILT" = "1" ]; then
-  echo "ERROR: ZIZKADB_USE_PREBUILT_IMAGES=1 but ghcr.io/zizka-ai/zizkadb-api:${IMAGE_TAG} not found." >&2
+  echo "ERROR: ZIZKADB_USE_PREBUILT_IMAGES=1 but ghcr.io/zizka-ai-sl/zizkadb-api:${IMAGE_TAG} not found." >&2
   echo "  Publish images first, or unset ZIZKADB_USE_PREBUILT_IMAGES." >&2
   exit 1
 else

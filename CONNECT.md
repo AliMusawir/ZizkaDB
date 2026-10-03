@@ -10,7 +10,7 @@
 curl -fsSL https://raw.githubusercontent.com/Zizka-ai/ZizkaDB/main/scripts/quickstart-remote.sh | bash
 ```
 
-Only ~4 small files land in `~/.zizkadb/infra/`. Pre-built images from `ghcr.io/zizka-ai/`.
+Only ~4 small files land in `~/.zizkadb/infra/`. Pre-built images from `ghcr.io/zizka-ai-sl/`.
 
 **From a git clone** (contributors):
 

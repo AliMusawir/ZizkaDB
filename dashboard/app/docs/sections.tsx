@@ -378,7 +378,7 @@ export ZIZKADB_TELEMETRY=false            # optional`}</Code>
 cd ZizkaDB
 bash scripts/quickstart.sh`}</Code>
         <p style={S.p}>
-          Starts API + dashboard. Uses pre-built <code style={codeMonoDark}>ghcr.io/zizka-ai/*</code> images when published;
+          Starts API + dashboard. Uses pre-built <code style={codeMonoDark}>ghcr.io/zizka-ai-sl/*</code> images when published;
           otherwise builds locally. Runs <code style={codeMonoDark}>zizkadb demo</code> (causal lineage).
         </p>
       </Step>
@@ -1436,7 +1436,7 @@ cd ZizkaDB
 bash scripts/quickstart.sh`}</Code>
         <p style={S.p}>
           One command: Docker stack + <code style={codeMonoDark}>db.why()</code> demo + dashboard link.
-          Pre-built images from <code style={codeMonoDark}>ghcr.io/zizka-ai/</code> when available.
+          Pre-built images from <code style={codeMonoDark}>ghcr.io/zizka-ai-sl/</code> when available.
         </p>
         <p style={S.p}>
           Stack only: <code style={codeMonoDark}>bash scripts/setup-local.sh</code> ·
