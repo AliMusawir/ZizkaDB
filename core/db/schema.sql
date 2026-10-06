@@ -96,6 +96,8 @@ CREATE TABLE events (
     event_type      VARCHAR(100) NOT NULL,
     data            JSONB NOT NULL,
     embedding       vector(1536),
+    index_status    VARCHAR(16) NOT NULL DEFAULT 'skipped',
+    index_claimed_at TIMESTAMPTZ,
     parent_event_id UUID REFERENCES events(event_id),  -- causal link
     session_id      VARCHAR(255),                       -- group related events
     sequence_no     BIGSERIAL,                          -- monotonic, never gaps
@@ -128,6 +130,10 @@ CREATE INDEX idx_events_data
 CREATE INDEX idx_events_embedding
     ON events USING hnsw (embedding vector_cosine_ops)
     WITH (m = 16, ef_construction = 64);
+
+CREATE INDEX idx_events_index_status
+    ON events (index_status, timestamp)
+    WHERE index_status IN ('pending', 'failed', 'processing');
 
 -- ─────────────────────────────────────────
 -- USAGE METERING
