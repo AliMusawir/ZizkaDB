@@ -13,25 +13,54 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("embed_worker")
 
 POLL_INTERVAL = float(os.getenv("EMBED_WORKER_POLL_SEC", "2"))
+CLAIM_TTL_SECONDS = int(os.getenv("EMBED_WORKER_CLAIM_TTL_SEC", "900"))
+
+
+async def _claim_pending_batch(pool, limit: int) -> list:
+    """Atomically claim a batch so concurrent workers do not process the same events.
+
+    A crashed worker can leave rows in the processing state. Those rows become
+    eligible again after the claim TTL, so the queue recovers without manual
+    intervention.
+    """
+    return await pool.fetch(
+        """
+        WITH candidates AS (
+            SELECT event_id
+            FROM events
+            WHERE index_status IN ('pending', 'failed')
+               OR (
+                    index_status = 'processing'
+                    AND (
+                        index_claimed_at IS NULL
+                        OR index_claimed_at < NOW() - ($2 * INTERVAL '1 second')
+                    )
+               )
+            ORDER BY timestamp ASC
+            FOR UPDATE SKIP LOCKED
+            LIMIT $1
+        )
+        UPDATE events AS e
+        SET index_status = 'processing',
+            index_claimed_at = NOW()
+        FROM candidates
+        WHERE e.event_id = candidates.event_id
+        RETURNING e.event_id, e.tenant_id, e.agent_id, e.event_type, e.data
+        """,
+        limit,
+        CLAIM_TTL_SECONDS,
+    )
 
 
 async def process_pending_batch(limit: int = 50) -> int:
-    from db.connection import init_db, close_db, get_pool, get_qdrant
+    from db.connection import get_pool, get_qdrant
     from services.embeddings import generate_embedding, event_to_text
     from services.event_write import _pgvector_literal
     from qdrant_client.models import PointStruct
 
     pool = get_pool()
-    rows = await pool.fetch(
-        """
-        SELECT event_id, tenant_id, agent_id, event_type, data
-        FROM events
-        WHERE index_status IN ('pending', 'failed')
-        ORDER BY timestamp ASC
-        LIMIT $1
-        """,
-        limit,
-    )
+    rows = await _claim_pending_batch(pool, limit)
+
     processed = 0
     for row in rows:
         event_id = str(row["event_id"])
@@ -43,11 +72,7 @@ async def process_pending_batch(limit: int = 50) -> int:
             embedding = await generate_embedding(text, str(row["tenant_id"]))
             if not embedding:
                 raise RuntimeError("no embedding returned")
-            await pool.execute(
-                "UPDATE events SET embedding = $1::vector, index_status = 'indexed' WHERE event_id = $2",
-                _pgvector_literal(embedding),
-                row["event_id"],
-            )
+
             qdrant = get_qdrant()
             await qdrant.upsert(
                 collection_name="agent_events",
@@ -63,11 +88,27 @@ async def process_pending_batch(limit: int = 50) -> int:
                     )
                 ],
             )
+            await pool.execute(
+                """
+                UPDATE events
+                SET embedding = $1::vector,
+                    index_status = 'indexed',
+                    index_claimed_at = NULL
+                WHERE event_id = $2
+                """,
+                _pgvector_literal(embedding),
+                row["event_id"],
+            )
             processed += 1
         except Exception as exc:
             logger.warning("index failed for %s: %s", event_id, exc)
             await pool.execute(
-                "UPDATE events SET index_status = 'failed' WHERE event_id = $1",
+                """
+                UPDATE events
+                SET index_status = 'failed',
+                    index_claimed_at = NULL
+                WHERE event_id = $1
+                """,
                 row["event_id"],
             )
     return processed
