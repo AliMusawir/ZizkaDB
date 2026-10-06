@@ -112,3 +112,19 @@ async def test_behavior_change_transitions_query_scopes_parent_by_tenant():
 
     sql = _transition_sql(pool)
     assert "p.tenant_id" in sql
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("from_ts", [None, datetime.datetime(2025, 12, 1)])
+async def test_behavior_change_transitions_query_prefixes_timestamp_once(from_ts):
+    # Regression: the window filter rendered as "c.c.timestamp", a Postgres
+    # error (500) once an agent had enough history for a baseline.
+    pool = AsyncMock()
+    pool.fetch.return_value = []
+    pool.fetchrow.return_value = {"pct": 0}
+
+    await _baseline_for_timewindow(pool, TENANT_A, "agent-a", from_ts, datetime.datetime(2026, 1, 1))
+
+    sql = _transition_sql(pool)
+    assert "c.c." not in sql
+    assert "c.timestamp <" in sql

@@ -111,7 +111,9 @@ if ! docker compose -f docker-compose.quickstart.yml pull; then
 fi
 
 echo "→ Starting stack (postgres, qdrant, redis, api, dashboard)..."
-docker compose -f docker-compose.quickstart.yml up -d
+# Recreate so containers from a clone-based setup (same project "infra") never
+# keep a stale network reference. Data lives in volumes.
+docker compose -f docker-compose.quickstart.yml up -d --force-recreate --remove-orphans
 
 echo "→ Waiting for API..."
 for i in $(seq 1 60); do

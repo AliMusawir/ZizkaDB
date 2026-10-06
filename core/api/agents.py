@@ -941,7 +941,7 @@ async def _baseline_for_timewindow(
             COUNT(*) AS count
         FROM events c
         JOIN events p ON c.parent_event_id = p.event_id AND p.tenant_id = c.tenant_id
-        WHERE c.tenant_id = $1 AND c.agent_id = $2 AND c.{ts_filter.replace('timestamp', 'c.timestamp')}
+        WHERE c.tenant_id = $1 AND c.agent_id = $2 AND {ts_filter.replace('timestamp', 'c.timestamp')}
         GROUP BY p.event_type, c.event_type
         ORDER BY count DESC
         LIMIT 20
