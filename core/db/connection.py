@@ -208,9 +208,12 @@ async def init_db():
     await _pg_pool.execute("""
         ALTER TABLE events
         ADD COLUMN IF NOT EXISTS index_status VARCHAR(16) NOT NULL DEFAULT 'skipped';
+        ALTER TABLE events
+        ADD COLUMN IF NOT EXISTS index_claimed_at TIMESTAMPTZ;
+
         CREATE INDEX IF NOT EXISTS idx_events_index_status
-        ON events (index_status)
-        WHERE index_status IN ('pending', 'failed');
+        ON events (index_status, timestamp)
+        WHERE index_status IN ('pending', 'failed', 'processing');
     """)
 
     await _pg_pool.execute("""
